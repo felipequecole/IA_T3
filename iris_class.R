@@ -1,8 +1,8 @@
 library(rpart)
 library(rpart.plot)
 
-#rm(list = ls())
-rm(data, data_test, data_train)
+rm(list = ls())
+#rm(data, data_test, data_train)
 data <- read.csv('iris.data.csv')
 data_train <- data
 # pegar aleatoriamente 13 de cada classe para formar a base de testes
@@ -27,9 +27,13 @@ confusion_matrix <- table(data_test$class, y_predicted)
 tp = c()
 fp = c()
 fn = c()
+precision = c()
+recall = c()
+f1_score = c()
 nclass <- nrow(confusion_matrix)
 for (i in 1:nclass){   # para cada classe
-  tp = c(tp,confusion_matrix[i,i])
+  true_positive = confusion_matrix[i,i]
+  tp = c(tp, true_positive)
   false_positive <- 0
   false_negative <- 0
   for (j in 1:nclass) {
@@ -37,14 +41,21 @@ for (i in 1:nclass){   # para cada classe
       false_positive <- false_positive + confusion_matrix[j, i]
       false_negative <- false_negative + confusion_matrix[i, j]
     }
+    prec <- true_positive / (true_positive + false_positive)
+    rec <- true_positive/(true_positive + false_negative)
+    precision <- c(precision, prec)
+    recall <- c(recall, rec)
+    f1_score <- c(f1_score, 2 * ((prec * rec) / (prec + rec)))
   }
   fp = c(fp, false_positive)
   fn = c(fn, false_negative)
 }
-acc <- sum(tp) / (sum(tp) + sum(fn) + sum(fp))
-precision <- sum(tp) / (sum(tp) + sum(fp))
-recall <- sum(tp) / (sum(tp) + sum(fn))
-f1_score <- 2 * ((precision * recall) / (precision + recall))
+total <- length(y_predicted)
+sum(confusion_matrix[3,])
+acc <- sum(tp) / total
+precision <- mean(precision)
+recall <- mean(recall)
+f1_score <- mean(f1_score)
 print(confusion_matrix)
 print(paste0("Acuracia: ", acc))
 print(paste0("Precisao: ", precision))
